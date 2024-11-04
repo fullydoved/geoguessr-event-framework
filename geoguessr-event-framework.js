@@ -79,7 +79,7 @@ const THE_WINDOW = unsafeWindow || window;
                 wsInstance.send = function (data) {
                     console.log("[WebSocket] Outgoing data:", data);
                     originalSend.call(this, data);
-                };
+                });
         
                 // Intercept incoming messages
                 wsInstance.addEventListener('message', (event) => {
