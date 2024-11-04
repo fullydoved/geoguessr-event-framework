@@ -71,9 +71,11 @@ const THE_WINDOW = unsafeWindow || window;
 
             THE_WINDOW.WebSocket = function (...args) {
                 const wsInstance = new OriginalWebSocket(...args);
-        
-                // Intercept outgoing messages
+                console.log(wsInstance);
+                
+                // Intercept outgoing messages                
                 const originalSend = wsInstance.send;
+                console.log(wsInstance);
                 wsInstance.send = function (data) {
                     console.log("[WebSocket] Outgoing data:", data);
                     originalSend.call(this, data);
