@@ -68,18 +68,17 @@ const THE_WINDOW = unsafeWindow || window;
         overrideSocket() {
             if (THE_WINDOW.WebSocket.isGEFSocket) return;
             const OriginalWebSocket = THE_WINDOW.WebSocket;
-
+        
             THE_WINDOW.WebSocket = function (...args) {
                 const wsInstance = new OriginalWebSocket(...args);
                 console.log(wsInstance);
                 
                 // Intercept outgoing messages                
                 const originalSend = wsInstance.send;
-                console.log(wsInstance);
                 wsInstance.send = function (data) {
                     console.log("[WebSocket] Outgoing data:", data);
                     originalSend.call(this, data);
-                });
+                }; // <-- Corrected: Closing of wsInstance.send
         
                 // Intercept incoming messages
                 wsInstance.addEventListener('message', (event) => {
@@ -87,8 +86,9 @@ const THE_WINDOW = unsafeWindow || window;
                 });
         
                 return wsInstance;
-            });
-             // Preserve the prototype to ensure native WebSocket behavior
+            }; // <-- Corrected: Closing of THE_WINDOW.WebSocket function
+        
+            // Preserve the prototype to ensure native WebSocket behavior
             THE_WINDOW.WebSocket.prototype = OriginalWebSocket.prototype;
             THE_WINDOW.WebSocket.isGEFSocket = true;
         }
