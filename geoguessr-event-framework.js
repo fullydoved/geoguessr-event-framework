@@ -39,7 +39,7 @@ const THE_WINDOW = unsafeWindow || window;
         }
         checkSocketIsOverriden() {
             console.log("Checking if socket is already overriden.");
-            if (THE_WINDOW.WebSocket.isGEFSocket) return;
+            if (window.WebSocket.isGEFSocket) return;
             console.log("Overriding socket....")
             this.overrideSocket();
         }
@@ -66,10 +66,10 @@ const THE_WINDOW = unsafeWindow || window;
             THE_WINDOW.fetch.isGEFFetch = true;
         }
         overrideSocket() {
-            if (THE_WINDOW.WebSocket.isGEFSocket) return;
-            const OriginalWebSocket = THE_WINDOW.WebSocket;
+            if (window.WebSocket.isGEFSocket) return;
+            const OriginalWebSocket = window.WebSocket;
         
-            THE_WINDOW.WebSocket = function (...args) {
+            window.WebSocket = function (...args) {
                 const wsInstance = new OriginalWebSocket(...args);
                 console.log(wsInstance);
                 
@@ -89,8 +89,8 @@ const THE_WINDOW = unsafeWindow || window;
             }; // <-- Corrected: Closing of THE_WINDOW.WebSocket function
         
             // Preserve the prototype to ensure native WebSocket behavior
-            THE_WINDOW.WebSocket.prototype = OriginalWebSocket.prototype;
-            THE_WINDOW.WebSocket.isGEFSocket = true;
+            window.WebSocket.prototype = OriginalWebSocket.prototype;
+            window.WebSocket.isGEFSocket = true;
         }
         init() {
             return __awaiter(this, void 0, void 0, function* () {
