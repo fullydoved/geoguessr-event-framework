@@ -37,6 +37,12 @@ const THE_WINDOW = unsafeWindow || window;
             });
             observer.observe(el, { subtree: true, childList: true });
         }
+        checkSocketIsOverriden() {
+            console.log("Checking if socket is already overriden.");
+            if (THE_WINDOW.WebSocket.isGEFSocket) return;
+            console.log("Overriding socket....")
+            this.overrideSocket();
+        }
         overrideFetch() {
             if (THE_WINDOW.fetch.isGEFFetch)
                 return;
@@ -59,12 +65,47 @@ const THE_WINDOW = unsafeWindow || window;
             })(this);
             THE_WINDOW.fetch.isGEFFetch = true;
         }
+        overrideSocket() {
+            if (THE_WINDOW.WebSocket.isGEFSocket) return;
+            const OriginalWebSocket = THE_WINDOW.WebSocket;
+
+            THE_WINDOW.WebSocket = function (...args) {
+                const wsInstance = new OriginalWebSocket(...args);
+
+                // Wait until the WebSocket is open before modifying 'send'
+                wsInstance.addEventListener('open', () => {
+                    console.log("WebSocket connection opened.");
+                    // Ensure 'send' is defined and override it safely
+                    if (typeof wsInstance.send === 'function') {
+                        const originalSend = wsInstance.send;
+                        wsInstance.send = function (data) {
+                            console.log("Outgoing WebSocket Data:", data);
+                            originalSend.call(wsInstance, data);
+                        };
+                    } else {
+                        console.error("WebSocket 'send' method is not a function or is undefined");
+                    }
+                });
+
+                // Log all incoming data
+                wsInstance.addEventListener('message', (event) => {
+                    console.log("Incoming WebSocket Data:", event.data);
+                    // Optionally, parse and handle data if necessary
+                });
+
+                return wsInstance;
+            };
+             // Preserve the prototype to ensure native WebSocket behavior
+            THE_WINDOW.WebSocket.prototype = OriginalWebSocket.prototype;
+            THE_WINDOW.WebSocket.isGEFSocket = true;
+        }
         init() {
             return __awaiter(this, void 0, void 0, function* () {
                 if (!this.loadedPromise) {
                     this.loadedPromise = Promise.resolve(this);
                 }
                 this.overrideFetch();
+                this.overrideSocket();
                 return yield this.loadedPromise;
             });
         }
