@@ -203,6 +203,6 @@ const THE_WINDOW = unsafeWindow || window;
     }
     if (!THE_WINDOW['GeoGuessrEventFramework']) {
         THE_WINDOW['GeoGuessrEventFramework'] = new GEF();
-        console.log('GeoGuessr Event Framework initialised: https://github.com/miraclewhips/geoguessr-event-framework');
+        console.log('Modified GeoGuessr Event Framework initialised: https://github.com/fullydoved/geoguessr-event-framework');
     }
 })();
