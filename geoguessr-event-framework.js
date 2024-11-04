@@ -71,30 +71,21 @@ const THE_WINDOW = unsafeWindow || window;
 
             THE_WINDOW.WebSocket = function (...args) {
                 const wsInstance = new OriginalWebSocket(...args);
-
-                // Wait until the WebSocket is open before modifying 'send'
-                wsInstance.addEventListener('open', () => {
-                    console.log("WebSocket connection opened.");
-                    // Ensure 'send' is defined and override it safely
-                    if (typeof wsInstance.send === 'function') {
-                        const originalSend = wsInstance.send;
-                        wsInstance.send = function (data) {
-                            console.log("Outgoing WebSocket Data:", data);
-                            originalSend.call(wsInstance, data);
-                        };
-                    } else {
-                        console.error("WebSocket 'send' method is not a function or is undefined");
-                    }
-                });
-
-                // Log all incoming data
+        
+                // Intercept outgoing messages
+                const originalSend = wsInstance.send;
+                wsInstance.send = function (data) {
+                    console.log("[WebSocket] Outgoing data:", data);
+                    originalSend.call(this, data);
+                };
+        
+                // Intercept incoming messages
                 wsInstance.addEventListener('message', (event) => {
-                    console.log("Incoming WebSocket Data:", event.data);
-                    // Optionally, parse and handle data if necessary
+                    console.log("[WebSocket] Incoming data:", event.data);
                 });
-
+        
                 return wsInstance;
-            };
+            });
              // Preserve the prototype to ensure native WebSocket behavior
             THE_WINDOW.WebSocket.prototype = OriginalWebSocket.prototype;
             THE_WINDOW.WebSocket.isGEFSocket = true;
